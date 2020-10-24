@@ -1231,6 +1231,7 @@ def load_image_gt(dataset, config, image_id, augmentation=None):
     """
     # Load image and mask
     image = dataset.load_image(image_id)
+    orig_image = dataset.load_orig_image(image_id)
     mask, class_ids = dataset.load_mask(image_id)
     original_shape = image.shape
     image, window, scale, padding, crop = utils.resize_image(
@@ -1240,7 +1241,7 @@ def load_image_gt(dataset, config, image_id, augmentation=None):
         max_dim=config.IMAGE_MAX_DIM,
         mode=config.IMAGE_RESIZE_MODE)
     mask = utils.resize_mask(mask, scale, padding, crop)
-
+    orig_image = utils.resize_mask(orig_image, scale, padding, crop)
     # Augmentation
     # This requires the imgaug lib (https://github.com/aleju/imgaug)
     if augmentation:
@@ -1297,7 +1298,7 @@ def load_image_gt(dataset, config, image_id, augmentation=None):
     image_meta = compose_image_meta(image_id, original_shape, image.shape,
                                     window, scale, active_class_ids)
 
-    return image, image_meta, class_ids, bbox, mask
+    return image, orig_image, image_meta, class_ids, bbox, mask
 
 
 def build_detection_targets(rpn_rois, gt_class_ids, gt_boxes, gt_masks, config):
