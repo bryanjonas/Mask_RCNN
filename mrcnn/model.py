@@ -2329,13 +2329,20 @@ class MaskRCNN(object):
         # Create log_dir if it does not exist
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
-
+        
         # Callbacks
         callbacks = [
-            keras.callbacks.TensorBoard(log_dir=self.log_dir,
-                                        histogram_freq=0, write_graph=True, write_images=False),
-            keras.callbacks.ModelCheckpoint(self.checkpoint_path,
-                                            verbose=0, save_weights_only=True),
+            #keras.callbacks.TensorBoard(log_dir=self.log_dir,
+            #                            histogram_freq=0, write_graph=True, write_images=False),
+            #keras.callbacks.ModelCheckpoint(self.checkpoint_path,
+            #                                verbose=0, save_weights_only=True),
+            keras.callbacks.ModelCheckpoint(self.checkpoint_path, 
+                                            monitor='val_loss',
+                                            verbose=0, 
+                                            save_best_only=True,
+                                            save_weights_only=True,
+                                            mode='min'),
+            keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5)
         ]
 
         # Add custom callbacks to the list
