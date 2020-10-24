@@ -1716,7 +1716,7 @@ class DataGenerator(KU.Sequence):
 
             # Get GT bounding boxes and masks for image.
             image_id = self.image_ids[image_index]
-            image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
+            image, orig_image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
                 load_image_gt(self.dataset, self.config, image_id,
                               augmentation=self.augmentation)
 
