@@ -40,7 +40,7 @@ class SatsConfig(Config):
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1
-    IMAGES_PER_GPU = 32
+    IMAGES_PER_GPU = 48
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  # background + 3 shapes
@@ -92,16 +92,16 @@ model.load_weights(COCO_MODEL_PATH, by_name=True,
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE, 
-            epochs=1,
+            epochs=20,
             verbose=1,
             layers='heads',
-            max_queue=1, 
-            workers=1)
+            max_queue=8, 
+            workers=4)
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=1, 
+            epochs=10, 
             verbose=1,
             layers="all",
-            max_queue=1, 
-            workers=1)
+            max_queue=8, 
+            workers=4)
