@@ -2270,7 +2270,7 @@ class MaskRCNN(object):
         self.checkpoint_path = self.checkpoint_path.replace(
             "*epoch*", "{epoch:04d}")
 
-    def train(self, train_dataset, val_dataset, learning_rate, epochs, layers,
+    def train(self, train_dataset, val_dataset, learning_rate, epochs, verbose, layers,
               augmentation=None, custom_callbacks=None, no_augmentation_sources=None,
               max_queue=1, workers=1):
         """Train the model.
@@ -2364,7 +2364,7 @@ class MaskRCNN(object):
             train_generator,
             initial_epoch=self.epoch,
             epochs=epochs,
-            verbose=1,
+            verbose=verbose,
             steps_per_epoch=self.config.STEPS_PER_EPOCH,
             callbacks=callbacks,
             validation_data=val_generator,
