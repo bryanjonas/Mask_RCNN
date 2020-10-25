@@ -9,6 +9,8 @@ from glob import glob
 import warnings
 import numpy as np
 
+#19456
+
 #Root dir for saving stuff
 ROOT_DIR = os.path.abspath("/lfs/jonas/maskrcnn/")
 # Directory to save logs and trained model
@@ -40,10 +42,10 @@ class SatsConfig(Config):
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1
-    IMAGES_PER_GPU = 48
+    IMAGES_PER_GPU = 36
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 1  # background + 3 shapes
+    NUM_CLASSES = 1 + 1  # background + building
 
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
@@ -83,25 +85,38 @@ model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
 
 #Either load the COCO weights
-model.load_weights(COCO_MODEL_PATH, by_name=True,
-                       exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", 
-                                "mrcnn_bbox", "mrcnn_mask"])
+#model.load_weights(COCO_MODEL_PATH, by_name=True,
+#                       exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", 
+#                                "mrcnn_bbox", "mrcnn_mask"])
 #***OR***
 #Load the last weights from training
-#model.load_weights(model.find_last(), by_name=True)
+model.load_weights(model.find_last(), by_name=True)
+
+augmentation = imgaug.Sometimes(0.5,aug.OneOf(
+                                            [
+                                            imgaug.augmenters.Fliplr(1), 
+                                            imgaug.augmenters.Flipud(1), 
+                                            imgaug.augmenters.Affine(rotate=(-45, 45)), 
+                                            imgaug.augmenters.Affine(rotate=(-90, 90)), 
+                                            imgaug.augmenters.Affine(scale=(0.5, 1.5))
+                                             ]
+                                        )
+                                   )
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE, 
             epochs=20,
-            verbose=1,
+            verbose=2,
             layers='heads',
-            max_queue=8, 
-            workers=4)
+            max_queue=16, 
+            workers=8,
+            augmentation=augmentation)
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=10, 
-            verbose=1,
+            epochs=40, 
+            verbose=2,
             layers="all",
-            max_queue=8, 
-            workers=4)
+            max_queue=16, 
+            workers=8,
+            augmentation=augmentation)
