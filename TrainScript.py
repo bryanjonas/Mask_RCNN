@@ -23,6 +23,7 @@ COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=iaa.SuspiciousMultiImageShapeWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 #Paths for training and validation
 image_path = '/data/spacenet/bldg/data/train/MUL/'
@@ -44,7 +45,7 @@ class SatsConfig(Config):
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1
-    IMAGES_PER_GPU = 36
+    IMAGES_PER_GPU = 24
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  # background + building
@@ -55,7 +56,7 @@ class SatsConfig(Config):
     IMAGE_MAX_DIM = 128
 
     # Use smaller anchors because our image and objects are small
-    RPN_ANCHOR_SCALES = (4, 8, 16, 32, 64)  # anchor side in pixels
+    RPN_ANCHOR_SCALES = (2, 4, 8, 16, 32)  # anchor side in pixels
 
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
@@ -92,9 +93,11 @@ model = modellib.MaskRCNN(mode="training", config=config,
 #                                "mrcnn_bbox", "mrcnn_mask"])
 #***OR***
 #Load the last weights from training
-model.load_weights(model.find_last(), by_name=True)
+#model.load_weights(model.find_last(), by_name=True)
+#***OR***
+model.load_weights(model.get_imagenet_weights(), by_name=True)
 
-augmentation = iaa.Sometimes(0.5,iaa.OneOf(
+augmentation = iaa.Sometimes(0.10,iaa.OneOf(
                                             [
                                             iaa.Fliplr(1), 
                                             iaa.Flipud(1), 
@@ -105,18 +108,18 @@ augmentation = iaa.Sometimes(0.5,iaa.OneOf(
                                         )
                                    )
 
-#model.train(dataset_train, dataset_val, 
-#            learning_rate=config.LEARNING_RATE, 
-#            epochs=20,
-#            verbose=2,
-#            layers='heads',
-#            max_queue=16, 
-#            workers=8,
-#            augmentation=augmentation)
+model.train(dataset_train, dataset_val, 
+            learning_rate=config.LEARNING_RATE, 
+            epochs=20,
+            verbose=2,
+            layers='heads',
+            max_queue=16, 
+            workers=8,
+            augmentation=augmentation)
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=40, 
+            epochs=25, 
             verbose=2,
             layers="all",
             max_queue=16, 
