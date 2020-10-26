@@ -5,7 +5,8 @@ import mrcnn.model as modellib
 from mrcnn.model import log
 import os
 from glob import glob
-
+import imgaug as ia
+import imgaug.augmenters as iaa
 import warnings
 import numpy as np
 
@@ -21,6 +22,7 @@ COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 #Supress warnings
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=iaa.SuspiciousMultiImageShapeWarning)
 
 #Paths for training and validation
 image_path = '/data/spacenet/bldg/data/train/MUL/'
@@ -92,25 +94,25 @@ model = modellib.MaskRCNN(mode="training", config=config,
 #Load the last weights from training
 model.load_weights(model.find_last(), by_name=True)
 
-augmentation = imgaug.Sometimes(0.5,aug.OneOf(
+augmentation = iaa.Sometimes(0.5,iaa.OneOf(
                                             [
-                                            imgaug.augmenters.Fliplr(1), 
-                                            imgaug.augmenters.Flipud(1), 
-                                            imgaug.augmenters.Affine(rotate=(-45, 45)), 
-                                            imgaug.augmenters.Affine(rotate=(-90, 90)), 
-                                            imgaug.augmenters.Affine(scale=(0.5, 1.5))
+                                            iaa.Fliplr(1), 
+                                            iaa.Flipud(1), 
+                                            iaa.Affine(rotate=(-45, 45)), 
+                                            iaa.Affine(rotate=(-90, 90)), 
+                                            iaa.Affine(scale=(0.5, 1.5))
                                              ]
                                         )
                                    )
 
-model.train(dataset_train, dataset_val, 
-            learning_rate=config.LEARNING_RATE, 
-            epochs=20,
-            verbose=2,
-            layers='heads',
-            max_queue=16, 
-            workers=8,
-            augmentation=augmentation)
+#model.train(dataset_train, dataset_val, 
+#            learning_rate=config.LEARNING_RATE, 
+#            epochs=20,
+#            verbose=2,
+#            layers='heads',
+#            max_queue=16, 
+#            workers=8,
+#            augmentation=augmentation)
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE / 10,
