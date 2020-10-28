@@ -44,7 +44,7 @@ class SatsConfig(Config):
     NAME = "sats"
 
     GPU_COUNT = 1
-    IMAGES_PER_GPU = 4
+    IMAGES_PER_GPU = 8
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  # background + building
