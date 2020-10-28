@@ -9,6 +9,7 @@ import imgaug as ia
 import imgaug.augmenters as iaa
 import warnings
 import numpy as np
+import keras
 
 #19456
 
@@ -45,7 +46,7 @@ class SatsConfig(Config):
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1
-    IMAGES_PER_GPU = 24
+    IMAGES_PER_GPU = 8
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  # background + building
@@ -88,14 +89,14 @@ model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
 
 #Either load the COCO weights
-#model.load_weights(COCO_MODEL_PATH, by_name=True,
-#                       exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", 
-#                                "mrcnn_bbox", "mrcnn_mask"])
+model.load_weights(COCO_MODEL_PATH, by_name=True,
+                       exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", 
+                                "mrcnn_bbox", "mrcnn_mask"])
 #***OR***
 #Load the last weights from training
 #model.load_weights(model.find_last(), by_name=True)
 #***OR***
-model.load_weights(model.get_imagenet_weights(), by_name=True)
+#model.load_weights(model.get_imagenet_weights(), by_name=True)
 
 augmentation = iaa.Sometimes(0.10,iaa.OneOf(
                                             [
@@ -110,18 +111,18 @@ augmentation = iaa.Sometimes(0.10,iaa.OneOf(
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE, 
-            epochs=20,
+            epochs=5,
             verbose=2,
             layers='heads',
             max_queue=16, 
-            workers=8,
-            augmentation=augmentation)
+            workers=8)#,
+            #augmentation=augmentation)
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=25, 
+            epochs=10, 
             verbose=2,
             layers="all",
             max_queue=16, 
-            workers=8,
-            augmentation=augmentation)
+            workers=8)#,
+            #augmentation=augmentation)
